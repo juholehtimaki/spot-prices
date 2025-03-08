@@ -1,0 +1,41 @@
+on:
+    workflow_call:
+      inputs:
+        aws_account_id:
+          required: true
+          type: string
+  
+jobs:
+    deploy:
+      runs-on: ubuntu-latest
+      timeout-minutes: 20
+      permissions:
+        id-token: write
+        contents: read
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+  
+        - name: Set up Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version-file: ".nvmrc"
+  
+        - name: Install pnpm
+          run: npm install -g pnpm
+  
+        - name: Install dependencies (CI)
+          run: pnpm install --frozen-lockfile
+  
+        - name: Build client
+          run: cd apps/client && pnpm build
+  
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-region: eu-west-1
+            role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/GitHubActionsRole
+  
+        - name: CDK deploy
+          run: cd apps/cdk && pnpm cdk deploy --all --require-approval never
+  
