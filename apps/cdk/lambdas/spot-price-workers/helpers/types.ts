@@ -72,10 +72,3 @@ type PublicationMarketDocument = {
 export type ApiResponseInJson = {
   Publication_MarketDocument: PublicationMarketDocument;
 };
-
-export type Price = {
-  startTime: string;
-  endTime: string;
-  price: number;
-  priceWithVat: number;
-};

@@ -1,6 +1,6 @@
+import type { Price } from "@spot-prices/shared-types";
 import { S3 } from "aws-sdk";
 import { logger } from "../../common/logger";
-import type { Price } from "../../common/types";
 
 const s3 = new S3();
 const BUCKET_NAME = process.env.BUCKET_NAME ?? "";

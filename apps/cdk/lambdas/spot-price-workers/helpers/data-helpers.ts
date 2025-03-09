@@ -1,6 +1,7 @@
+import type { Price } from "@spot-prices/shared-types";
 import { addHours, isBefore, parseISO } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import type { Price, TimeSeries } from "./types";
+import type { TimeSeries } from "./types";
 
 const NEW_VAT_MULTIPLIER = 1.255;
 const OLD_WAT_MULTIPLIER = 1.24;

@@ -1,6 +1,6 @@
+import type { Price } from "@spot-prices/shared-types";
 import { S3 } from "aws-sdk";
 import { format, startOfMonth, startOfWeek } from "date-fns";
-import type { Price } from "./types";
 
 const s3 = new S3();
 
