@@ -2,7 +2,7 @@ import axios from "axios";
 import { addHours, format, parseISO } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { Parser } from "xml2js";
-import type { ApiResponseInJson, Price, TimeSeries } from "./types";
+import type { ApiResponseInJson } from "./types";
 
 const API_KEY = process.env.ENTSOE_API_KEY;
 const API_BASE_URL = "https://web-api.tp.entsoe.eu";
