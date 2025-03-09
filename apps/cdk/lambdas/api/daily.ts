@@ -5,7 +5,7 @@ import {
   isValidDateFormat,
   isValidDateInterval,
   isValidDateRange,
-} from "./helpers/dateHelper";
+} from "./helpers/data-helpers";
 import { createResponse } from "./helpers/response";
 import { fetchDailyPricesFromS3 } from "./helpers/s3-helpers";
 

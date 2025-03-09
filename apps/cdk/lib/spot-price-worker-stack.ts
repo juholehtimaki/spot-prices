@@ -133,6 +133,22 @@ export class SpotPriceWorkerStack extends cdk.Stack {
   }
 
   createCfnDistribution(bucket: s3.Bucket) {
+    const responseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(
+      this,
+      "ResponseHeadersPolicy",
+      {
+        corsBehavior: {
+          accessControlAllowOrigins: ["*"],
+          accessControlAllowMethods: ["GET", "HEAD"],
+          accessControlAllowHeaders: ["*"],
+          accessControlExposeHeaders: ["ETag"],
+          accessControlMaxAge: cdk.Duration.seconds(3000),
+          originOverride: true,
+          accessControlAllowCredentials: false,
+        },
+      },
+    );
+
     const cfnDistribution = new cloudfront.Distribution(
       this,
       "PricesCfnDistribution",
@@ -144,6 +160,7 @@ export class SpotPriceWorkerStack extends cdk.Stack {
           allowedMethods: cloudfront.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+          responseHeadersPolicy: responseHeadersPolicy,
         },
       },
     );

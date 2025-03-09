@@ -5,7 +5,7 @@ export const DailyPricesPage = () => {
   const prices = useDailyPricesQuery("2025/03/10");
   return (
     <PageContainer>
-      {prices.data && <div>{JSON.stringify(prices)}</div>}
+      {prices.data && <div>{JSON.stringify(prices.data)}</div>}
     </PageContainer>
   );
 };
