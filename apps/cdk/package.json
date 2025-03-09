@@ -11,7 +11,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
-    "@spot-prices/shared-types": "file:../../libs/shared-types",
+    "@spot-prices/shared-types": "workspace:*",
     "@types/aws-lambda": "^8.10.147",
     "@types/xml2js": "^0.4.14",
     "aws-cdk": "2.177.0",
