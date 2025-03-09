@@ -12,6 +12,12 @@ on:
 jobs:
   qa:
     uses: ./.github/workflows/_qa.yaml
-    secrets: inherit
+    with:
+      aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
+
+  deploy:
+    if: ${{ github.ref_name == 'main' || github.event_name == 'workflow_dispatch' }}
+    needs: qa
+    uses: ./.github/workflows/_deploy.yaml
     with:
       aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
