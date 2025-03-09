@@ -1,5 +1,4 @@
 import type { APIGatewayProxyHandler } from "aws-lambda";
-import { createResponse } from "../common/response";
 import {
   getDatesInBetween,
   isValidDate,
@@ -7,6 +6,7 @@ import {
   isValidDateInterval,
   isValidDateRange,
 } from "./helpers/dateHelper";
+import { createResponse } from "./helpers/response";
 import { fetchDailyPricesFromS3 } from "./helpers/s3-helpers";
 
 export const handler: APIGatewayProxyHandler = async (event) => {
