@@ -9,6 +9,7 @@ export const handler = async () => {
     const pricesForTheYear = await fetchDailyPricesFromS3ForYear(year);
 
     await storeAggregatedPricesInS3(year, pricesForTheYear);
+    return null;
   } catch (error) {
     throw new Error("Failed to aggregate prices");
   }

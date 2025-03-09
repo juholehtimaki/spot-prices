@@ -35,8 +35,9 @@ export const handler = async () => {
     const groupedPrices = processPriceData(timeseries, startDate, endDate);
 
     logger.info("Storing prices in S3");
-
     await storeDailyPricesInS3(groupedPrices);
+
+    return null;
   } catch (error) {
     throw new Error("Failed to store prices in S3");
   }
