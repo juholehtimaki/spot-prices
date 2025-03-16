@@ -1,11 +1,5 @@
 import { useDailyPricesQuery } from "@/lib/api/prices/hooks";
-import { PageContainer } from "../utility/PageContainer";
-import {
-  type ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "../ui/chart";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -24,7 +18,13 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { useMemo, useState } from "react";
+import {
+  type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "../ui/chart";
+import { PageContainer } from "../utility/PageContainer";
 
 const chartConfig = {
   visitors: {

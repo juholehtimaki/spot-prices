@@ -1,9 +1,9 @@
 import { useDailyPricesQuery } from "@/lib/api/prices/hooks";
+import { useMemo } from "react";
 import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
-import { PageContainer } from "../utility/PageContainer";
-import { useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { PageContainer } from "../utility/PageContainer";
 
 export const DailyDashboardPage = () => {
   const { data } = useDailyPricesQuery("2025/03/13");
