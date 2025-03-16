@@ -1,6 +1,6 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
-import { DailyPricesPage } from "./components/pages/DailyPricesPage";
+import { DailyDashboardPage } from "./components/pages/DailyDashboardPage";
 
 const router = createBrowserRouter([
   {
@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <DailyPricesPage />,
+        element: <DailyDashboardPage />,
       },
     ],
   },
