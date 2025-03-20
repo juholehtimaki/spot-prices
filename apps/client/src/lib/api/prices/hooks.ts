@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getPrices } from "./queries";
 
-type DateString =
+export type DateString =
   `${number}${number}${number}${number}/${number}${number}/${number}${number}`;
 
 type Timeframe = "daily" | "weekly" | "monthly" | "yearly";
@@ -12,6 +12,7 @@ const usePricesQuery = (timeframe: Timeframe, keys: (string | number)[]) => {
   return useQuery({
     queryKey: [fileKey],
     queryFn: () => getPrices(fileKey),
+    staleTime: Number.MAX_SAFE_INTEGER,
   });
 };
 
