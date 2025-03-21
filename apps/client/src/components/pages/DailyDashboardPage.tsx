@@ -6,148 +6,100 @@ import { Card } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { PageContainer } from "../utility/PageContainer";
+import clsx from "clsx";
+
+const PRICE_THRESHOLDS = {
+  cheap: 10,
+  moderate: 20,
+};
+
+const getPriceColor = (price: number) => {
+  if (price <= PRICE_THRESHOLDS.cheap) return "text-green-600";
+  if (price <= PRICE_THRESHOLDS.moderate) return "text-blue-500";
+  return "text-red-600";
+};
+
+const getTimeFromIndex = (index?: number) => {
+  if (index === undefined) return "";
+  const start = index.toString().padStart(2, "0");
+  const end = (index + 1).toString().padStart(2, "0");
+  return `Klo ${start} - ${end}`;
+};
 
 export const DailyDashboardPage = () => {
   const today = new Date();
-  const yesterday = subDays(today, 1);
-  const tomorrow = addDays(today, 1);
+  const formattedDates = {
+    yesterday: format(subDays(today, 2), "yyyy-MM-dd"),
+    today: format(today, "yyyy-MM-dd"),
+    tomorrow: format(addDays(today, 1), "yyyy-MM-dd"),
+  };
 
-  const formattedToday = format(today, "yyyy-MM-dd");
-  const formattedYesterday = format(yesterday, "yyyy-MM-dd");
-  const formattedTomorrow = format(tomorrow, "yyyy-MM-dd");
-
-  const [selectedDate, setSelectedDate] = useState(formattedToday);
-
+  const [selectedDate, setSelectedDate] = useState(formattedDates.today);
   const { data } = useDailyPricesQuery(
     getDateInApiFormat(new Date(selectedDate)),
   );
-
-  const { data: currentData } = useDailyPricesQuery(
-    getDateInApiFormat(new Date(formattedToday)),
+  const { data: currentDayData } = useDailyPricesQuery(
+    getDateInApiFormat(today),
   );
 
   const currentPrice = useMemo(() => {
-    if (!currentData || currentData.length === 0) return undefined;
+    if (!currentDayData?.length) return undefined;
     const currentHour = getHours(new Date());
-    return { data: currentData[currentHour], index: currentHour };
-  }, [currentData]);
+    return { data: currentDayData[currentHour], index: currentHour };
+  }, [currentDayData]);
 
-  const lowestPrice = useMemo(() => {
-    if (!data || data.length === 0) return undefined;
-    return data.reduce(
-      (min, data, index) =>
-        data.price < min.data.price ? { data, index } : min,
-      { data: data[0], index: 0 },
-    );
+  const priceStats = useMemo(() => {
+    if (!data?.length) return {};
+    return {
+      lowest: data.reduce(
+        (min, d, index) =>
+          d.price <= min.data.price ? { data: d, index } : min,
+        { data: data[0], index: 0 },
+      ),
+      highest: data.reduce(
+        (max, d, index) =>
+          d.price >= max.data.price ? { data: d, index } : max,
+        { data: data[0], index: 0 },
+      ),
+      average: data.reduce((sum, d) => sum + d.price, 0) / data.length,
+    };
   }, [data]);
-
-  const highestPrice = useMemo(() => {
-    if (!data || data.length === 0) return undefined;
-    return data.reduce(
-      (max, data, index) =>
-        data.price > max.data.price ? { data, index } : max,
-      { data: data[0], index: 0 },
-    );
-  }, [data]);
-
-  const averagePrice = useMemo(() => {
-    if (!data || data.length === 0) return undefined;
-    const total = data.reduce((sum, item) => sum + item.price, 0);
-    return total / data.length;
-  }, [data]);
-
-  const getTimeFromIndex = (index: number) => {
-    const start = index.toString().padStart(2, "0");
-    const end = (index + 1).toString().padStart(2, "0");
-    return `Klo ${start} - ${end}`;
-  };
-
-  const getAveragePriceLabel = (selectedDate: string) => {
-    if (selectedDate === formattedToday) {
-      return "Tänään";
-    }
-    if (selectedDate === formattedYesterday) {
-      return "Eilen";
-    }
-    if (selectedDate === formattedTomorrow) {
-      return "Huomenna";
-    }
-  };
 
   return (
     <PageContainer>
       <div className="flex flex-col w-full gap-5">
         <Card>
-          <div className="flex flex-col gap-1 text-center flex-1">
-            <p className="text-gray-500 text-sm font-semibold">Hinta nyt</p>
-            {currentPrice?.data && (
-              <>
-                <p className="text-gray-600 font-sm">
-                  {getTimeFromIndex(currentPrice?.index)}
-                </p>
-                <p className="text-xl font-bold text-blue-600">
-                  {currentPrice?.data.priceWithVat?.toFixed(2)}
-                </p>
-                <p className="text-gray-500 text-sm">c/kWh</p>
-              </>
-            )}
-          </div>
+          <PriceCard
+            title="Hinta nyt"
+            price={currentPrice?.data.price}
+            timeLabel={getTimeFromIndex(currentPrice?.index)}
+          />
         </Card>
-        <Tabs defaultValue={formattedToday} onValueChange={setSelectedDate}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value={formattedYesterday}>Eilen</TabsTrigger>
-            <TabsTrigger value={formattedToday}>Tänään</TabsTrigger>
-            <TabsTrigger value={formattedTomorrow}>Huomenna</TabsTrigger>
-          </TabsList>
+        <Tabs
+          defaultValue={formattedDates.today}
+          onValueChange={setSelectedDate}
+        >
+          <PriceTabs formattedDates={formattedDates} />
           <TabsContent value={selectedDate}>
             <Card className="w-full">
               <div className="flex justify-between w-full">
-                <div className="flex flex-col gap-1 text-center flex-1">
-                  <p className="text-gray-500 text-sm font-semibold">
-                    Halvin hinta
-                  </p>
-                  {lowestPrice?.data && (
-                    <>
-                      <p className="text-gray-600 font-sm">
-                        {getTimeFromIndex(lowestPrice.index)}
-                      </p>
-                      <p className="text-xl font-bold text-blue-600">
-                        {lowestPrice.data.priceWithVat.toFixed(2)}
-                      </p>
-                      <p className="text-gray-500 text-sm">c/kWh</p>
-                    </>
-                  )}
-                </div>
+                <PriceCard
+                  title="Halvin hinta"
+                  timeLabel={getTimeFromIndex(priceStats.lowest?.index)}
+                  price={priceStats.lowest?.data.priceWithVat}
+                />
                 <Separator orientation="vertical" />
-                <div className="flex flex-col gap-1 text-center flex-1">
-                  <p className="text-gray-500 text-sm font-semibold">
-                    Kallein hinta
-                  </p>
-                  {highestPrice?.data && (
-                    <>
-                      <p className="text-gray-600 font-sm">
-                        {getTimeFromIndex(highestPrice.index)}
-                      </p>
-                      <p className="text-xl font-bold text-blue-600">
-                        {highestPrice.data.priceWithVat.toFixed(2)}
-                      </p>
-                      <p className="text-gray-500 text-sm">c/kWh</p>
-                    </>
-                  )}
-                </div>
+                <PriceCard
+                  title="Kallein hinta"
+                  timeLabel={getTimeFromIndex(priceStats.highest?.index)}
+                  price={priceStats.highest?.data.priceWithVat}
+                />
                 <Separator orientation="vertical" />
-                <div className="flex flex-col gap-1 text-center flex-1">
-                  <p className="text-gray-500 text-sm font-semibold">
-                    Keskihinta
-                  </p>
-                  <p className="text-gray-600 font-sm">
-                    {getAveragePriceLabel(selectedDate)}
-                  </p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {averagePrice?.toFixed(2)}
-                  </p>
-                  <p className="text-gray-500 text-sm">c/kWh</p>
-                </div>
+                <PriceCard
+                  title="Keskihinta"
+                  price={priceStats.average}
+                  timeLabel="Tänään"
+                />
               </div>
             </Card>
           </TabsContent>
@@ -156,3 +108,38 @@ export const DailyDashboardPage = () => {
     </PageContainer>
   );
 };
+
+type PriceTabsProps = {
+  formattedDates: Record<string, string>;
+};
+
+const PriceTabs: React.FC<PriceTabsProps> = ({ formattedDates }) => (
+  <TabsList className="grid w-full grid-cols-3">
+    {Object.entries(formattedDates).map(([key, value]) => (
+      <TabsTrigger key={key} value={value}>
+        {key.charAt(0).toUpperCase() + key.slice(1)}
+      </TabsTrigger>
+    ))}
+  </TabsList>
+);
+
+type PriceCardProps = {
+  title: string;
+  timeLabel: string;
+  price?: number;
+};
+
+const PriceCard: React.FC<PriceCardProps> = ({ title, timeLabel, price }) => (
+  <div className="flex flex-col gap-1 text-center flex-1">
+    <p className="text-gray-500 text-sm font-semibold">{title}</p>
+    {price !== undefined && (
+      <>
+        <p className="text-gray-600 font-sm">{timeLabel}</p>
+        <p className={clsx("text-xl font-bold", getPriceColor(price))}>
+          {price.toFixed(2)}
+        </p>
+        <p className="text-gray-500 text-sm">c/kWh</p>
+      </>
+    )}
+  </div>
+);
